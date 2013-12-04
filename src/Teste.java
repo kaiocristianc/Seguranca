@@ -1,9 +1,8 @@
-/**
- * Created with IntelliJ IDEA.
- * User: kaio
- * Date: 12/3/13
- * Time: 11:37 PM
- * To change this template use File | Settings | File Templates.
- */
+import entidades.GerenciadorArquivos;
+
 public class Teste {
+    public static void main(String args[]) throws Exception{
+        GerenciadorArquivos g = new GerenciadorArquivos();
+        g.iniciarMonitoramento();
+    }
 }
