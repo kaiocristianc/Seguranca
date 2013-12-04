@@ -24,6 +24,6 @@ public class GerenciadorArquivos implements Observer{
 
     @Override
     public void update(Observable observable, Object o) {
-        System.out.println("Alterou o arquivo:"+o);
+        System.out.println(o);
     }
 }

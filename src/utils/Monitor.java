@@ -53,10 +53,11 @@ public class Monitor extends Observable{
             Path prev = keys.get(key);
             if (prev == null) {
                 String mensagem = "REGISTRO-"+dir;
-
+                sinalizarMudancaArquivo(mensagem);
             } else {
                 if (!dir.equals(prev)) {
-                    System.out.format("update: %s -> %s\n", prev, dir);
+                    String mensagem = "UPDATE-"+dir;
+                    sinalizarMudancaArquivo(mensagem);
                 }
             }
         }
@@ -112,8 +113,10 @@ public class Monitor extends Observable{
                 Path name = ev.context();
                 Path child = dir.resolve(name);
 
+                String mensagem = ""+event.kind().name()+"-"+child;
+                sinalizarMudancaArquivo(mensagem);
+
                 // print out event
-                System.out.format("%s: %s\n", event.kind().name(), child);
 
                 // if directory is created, and watching recursively, then
                 // register it and its sub-directories
