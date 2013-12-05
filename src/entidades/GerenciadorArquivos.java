@@ -1,8 +1,9 @@
 package entidades;
 
-import utils.Encriptador;
+import utils.Constantes;
 import utils.Monitor;
 
+import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -12,22 +13,40 @@ import java.util.Observer;
 
 public class GerenciadorArquivos implements Observer{
 
-    Servidor servidor;
     private Monitor monitor;
-    private Encriptador encriptador;
-    private String enderecoPasta = "/home/kaio/Downloads/pastaTeste";
+    private String enderecoPasta;
+    private Conectavel conectavel;
 
-    public void iniciarMonitoramento() throws Exception {
+    public void iniciarMonitoramento(Conectavel conectavel,String enderecoPasta) throws Exception {
+        this.enderecoPasta = enderecoPasta;
+        this.conectavel = conectavel;
         Path dir = Paths.get(enderecoPasta);
         monitor = new Monitor(dir, true);
-        servidor = new Servidor();
         monitor.addObserver(this);
         monitor.processEvents();
     }
 
+    public void salvarArquivoNoSistema(Map<String, String> mapa){
+        System.out.println("Tentando salvar");
+    }
+
+    public void deletarArquivoNoSistema(Map<String, String> mapa){
+        System.out.println("Tentando deletar");
+    }
+
+    public void atualizarArquivoNoSistema(Map<String, String> mapa){
+        System.out.println("Tentando atualizar");
+    }
+
     @Override
     public void update(Observable observable, Object o) {
-        Map mapa = (HashMap)o;
-        System.out.println(o);
-    }
+        Map<String,String> mapa = (HashMap) o;
+        String evento = mapa.get("evento");
+        if(evento.equals(Constantes.SALVAR))
+            salvarArquivoNoSistema(mapa);
+        else if(evento.equals(Constantes.ATUALIZAR))
+            atualizarArquivoNoSistema(mapa);
+        else if(evento.equals(Constantes.EXCLUIR))
+            deletarArquivoNoSistema(mapa);
+}
 }

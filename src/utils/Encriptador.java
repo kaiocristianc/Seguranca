@@ -1,9 +1,6 @@
 package utils;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.security.SecureRandom;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
@@ -42,13 +39,27 @@ public class Encriptador{
         return arrayDesencriptado;
     }
 
-    public static byte[] encriptar(byte[] s,byte[] chave) throws Exception {
-        byte arrayEncriptado[];
+    public static byte[] encriptar(Object arquivo,byte[] chave) throws Exception {
+        byte[] arrayNaoEncriptado = prepararArquivoParaEnvio(arquivo);
+        byte[] arrayEncriptado;
         SecureRandom securerandom = new SecureRandom();
         securerandom.nextBytes(chave);
         Cipher cipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
         cipher.init(1, getKey(chave));
-        arrayEncriptado = encode(cipher.doFinal(s),chave); // antes
+        arrayEncriptado = encode(cipher.doFinal(arrayNaoEncriptado),chave); // antes
         return arrayEncriptado;
+    }
+
+    private static byte[] prepararArquivoParaEnvio(Object arquivo){
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        ObjectOutput out;
+        try{
+            out = new ObjectOutputStream(bos);
+            out.writeObject(arquivo);
+            return bos.toByteArray();
+        }catch(Exception e){
+            System.out.println("Erro ao bytear o arquivo.Erro:"+e.getMessage());
+        }
+        return null;
     }
 }

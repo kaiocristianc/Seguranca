@@ -1,8 +1,9 @@
-import entidades.GerenciadorArquivos;
+import entidades.Conectavel;
+import entidades.Servidor;
 
 public class Teste {
     public static void main(String args[]) throws Exception{
-        GerenciadorArquivos g = new GerenciadorArquivos();
-        g.iniciarMonitoramento();
+        Conectavel servidor = new Servidor();
+        servidor.iniciarServicos();
     }
 }
