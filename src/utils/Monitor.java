@@ -17,9 +17,13 @@ public class Monitor extends Observable{
     private final boolean recursive;
     private boolean trace = false;
 
-    private void sinalizarMudancaArquivo(String arquivoOuPasta){
+    private void sinalizarMudancaArquivo(String arquivoOuPasta,String tipoEvento){
+        Map<String,String> mapa = new HashMap<String,String>();
+        mapa.put("endereco",arquivoOuPasta);
+        mapa.put("evento",tipoEvento);
+
         this.setChanged();
-        this.notifyObservers(arquivoOuPasta);
+        this.notifyObservers(mapa);
     }
 
     /**
@@ -52,12 +56,12 @@ public class Monitor extends Observable{
         if (trace) {
             Path prev = keys.get(key);
             if (prev == null) {
-                String mensagem = "REGISTRO-"+dir;
-                sinalizarMudancaArquivo(mensagem);
+                System.out.println("PROBLEM!Entrou no REGISTRO");
+                sinalizarMudancaArquivo(dir.toString(),"REGISTRO");
             } else {
                 if (!dir.equals(prev)) {
-                    String mensagem = "UPDATE-"+dir;
-                    sinalizarMudancaArquivo(mensagem);
+                    System.out.println("PROBLEM!Entrou no UPDATE");
+                    sinalizarMudancaArquivo(dir.toString(),"UPDATE");
                 }
             }
         }
@@ -113,8 +117,7 @@ public class Monitor extends Observable{
                 Path name = ev.context();
                 Path child = dir.resolve(name);
 
-                String mensagem = ""+event.kind().name()+"-"+child;
-                sinalizarMudancaArquivo(mensagem);
+                sinalizarMudancaArquivo(child.toString(),event.kind().name());
 
                 // print out event
 
