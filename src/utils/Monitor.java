@@ -10,39 +10,22 @@ import java.util.Observable;
 import static java.nio.file.LinkOption.NOFOLLOW_LINKS;
 import static java.nio.file.StandardWatchEventKinds.*;
 
-public class Monitor extends Observable{
+public class Monitor extends Observable {
 
     private final WatchService watcher;
     private final Map<WatchKey, Path> keys;
     private final boolean recursive;
     private boolean trace = false;
 
-    private void sinalizarMudancaArquivo(String arquivoOuPasta,String tipoEvento){
-        Map<String,String> mapa = new HashMap<String,String>();
-        mapa.put("endereco",arquivoOuPasta);
-        mapa.put("evento",tipoEvento);
-
-        this.setChanged();
-        this.notifyObservers(mapa);
-    }
-
-    /**
-     * Creates a WatchService and registers the given directory
-     */
     public Monitor(Path dir, boolean recursive) throws IOException {
         this.watcher = FileSystems.getDefault().newWatchService();
         this.keys = new HashMap<WatchKey, Path>();
         this.recursive = recursive;
-
         if (recursive) {
-            System.out.format("Scanning %s ...\n", dir);
             registerAll(dir);
-            System.out.println("Done.");
         } else {
             register(dir);
         }
-
-        // enable trace after initial registration
         this.trace = true;
     }
 
@@ -51,29 +34,32 @@ public class Monitor extends Observable{
         return (WatchEvent<T>) event;
     }
 
+    private void sinalizarMudancaArquivo(String arquivoOuPasta, String tipoEvento) {
+        Map<String, String> mapa = new HashMap<String, String>();
+        mapa.put("endereco", arquivoOuPasta);
+        mapa.put("evento", tipoEvento);
+        this.setChanged();
+        this.notifyObservers(mapa);
+    }
+
     private void register(Path dir) throws IOException {
         WatchKey key = dir.register(watcher, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
         if (trace) {
             Path prev = keys.get(key);
             if (prev == null) {
                 System.out.println("PROBLEM!Entrou no REGISTRO");
-                sinalizarMudancaArquivo(dir.toString(),"REGISTRO");
+                sinalizarMudancaArquivo(dir.toString(), "REGISTRO");
             } else {
                 if (!dir.equals(prev)) {
                     System.out.println("PROBLEM!Entrou no UPDATE");
-                    sinalizarMudancaArquivo(dir.toString(),"UPDATE");
+                    sinalizarMudancaArquivo(dir.toString(), "UPDATE");
                 }
             }
         }
         keys.put(key, dir);
     }
 
-    /**
-     * Register the given directory, and all its sub-directories, with the
-     * WatchService.
-     */
     private void registerAll(final Path start) throws IOException {
-        // register directory and sub-directories
         Files.walkFileTree(start, new SimpleFileVisitor<Path>() {
             @Override
             public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
@@ -84,9 +70,6 @@ public class Monitor extends Observable{
         });
     }
 
-    /**
-     * Process all events for keys queued to the watcher
-     */
     public void processEvents() {
         for (; ; ) {
 
@@ -117,7 +100,7 @@ public class Monitor extends Observable{
                 Path name = ev.context();
                 Path child = dir.resolve(name);
 
-                sinalizarMudancaArquivo(child.toString(),event.kind().name());
+                sinalizarMudancaArquivo(child.toString(), event.kind().name());
 
                 // print out event
 
@@ -129,17 +112,13 @@ public class Monitor extends Observable{
                             registerAll(child);
                         }
                     } catch (IOException x) {
-                        // ignore to keep sample readbale
                     }
                 }
             }
 
-            // reset key and remove from set if directory no longer accessible
             boolean valid = key.reset();
             if (!valid) {
                 keys.remove(key);
-
-                // all directories are inaccessible
                 if (keys.isEmpty()) {
                     break;
                 }
