@@ -2,7 +2,7 @@ package entidades;
 
 import utils.Encriptador;
 
-public abstract class Conectavel {
+public abstract class  Conectavel {
 
     public abstract void iniciarServicos() throws Exception;
 

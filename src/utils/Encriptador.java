@@ -32,15 +32,16 @@ public class Encriptador{
         return key;
     }
 
-    public static byte[] desencriptar(byte[] s,byte[] chave) throws Exception {
+    public static byte[] desencriptar(Object arquivo,byte[] chave) throws Exception {
+        byte[] arrayNaoEncriptado = getBytesParaEncriptacao(arquivo);
         Cipher cipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
         cipher.init(2, getKey(chave));
-        byte arrayDesencriptado[] = cipher.doFinal(decode(s));
+        byte arrayDesencriptado[] = cipher.doFinal(decode(arrayNaoEncriptado));
         return arrayDesencriptado;
     }
 
     public static byte[] encriptar(Object arquivo,byte[] chave) throws Exception {
-        byte[] arrayNaoEncriptado = prepararArquivoParaEnvio(arquivo);
+        byte[] arrayNaoEncriptado = getBytesParaEncriptacao(arquivo);
         byte[] arrayEncriptado;
         SecureRandom securerandom = new SecureRandom();
         securerandom.nextBytes(chave);
@@ -50,7 +51,7 @@ public class Encriptador{
         return arrayEncriptado;
     }
 
-    private static byte[] prepararArquivoParaEnvio(Object arquivo){
+    private static byte[] getBytesParaEncriptacao(Object arquivo){
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         ObjectOutput out;
         try{

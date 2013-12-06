@@ -2,6 +2,7 @@ package utils;
 
 import java.io.*;
 import java.util.Enumeration;
+import java.util.Stack;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
@@ -9,23 +10,29 @@ import java.util.zip.ZipOutputStream;
 
 public class Compactador {
 
-    public static boolean comprimir(String endEntrada, String endSaida) throws Exception {
+    public static boolean comprimir(String endEntrada, String endSaida) {
         String dirInterno = "";
         boolean retorno = true;
-        File file = new File(endEntrada);
-        ZipOutputStream zipDestino = new ZipOutputStream(new FileOutputStream(endSaida));
-        if (file.isFile()) {
-            ziparFile(file, dirInterno, zipDestino);
-        } else {
-            dirInterno = file.getName();
-            File[] files = file.listFiles();
-            for (int i = 0; i < files.length; i++) {
+        try {
+            File file = new File(endEntrada);
+            ZipOutputStream zipDestino = new ZipOutputStream(new FileOutputStream(endSaida));
+            if (file.isFile()) {
+                ziparFile(file, dirInterno, zipDestino);
+            } else {
+                dirInterno = file.getName();
+                File[] files = file.listFiles();
+                for (int i = 0; i < files.length; i++) {
 
-                ziparFile(files[i], dirInterno, zipDestino);
+                    ziparFile(files[i], dirInterno, zipDestino);
 
+                }
             }
+            zipDestino.close();
+
+        } catch (IOException ex) {
+            System.out.println("falhou3");
         }
-        zipDestino.close();
+
         return retorno;
     }
 
@@ -37,6 +44,7 @@ public class Compactador {
         byte[] buffer = new byte[1024];
 
         try {
+            // cria diretório informado, caso não exista
             if (!dir.exists()) {
                 dir.mkdirs();
             }
@@ -44,6 +52,7 @@ public class Compactador {
                 throw new IOException("O diretório " + dir.getName() +
                         " não é um diretório válido");
             }
+
             zip = new ZipFile(zipFile);
             Enumeration e = zip.entries();
             while (e.hasMoreElements()) {
@@ -95,13 +104,26 @@ public class Compactador {
     private static void ziparFile(File file, String dirInterno, ZipOutputStream zipDestino) throws IOException {
 
         byte data[] = new byte[1024];
+
+        //Verifica se a file é um diretório, então faz a recursão
         if (file.isDirectory()) {
+
+
             File[] files = file.listFiles();
+
+
             for (int i = 0; i < files.length; i++) {
+
                 ziparFile(files[i], dirInterno + File.separator + file.getName(), zipDestino);
+
             }
+
+
             return;
+
         }
+
+
         FileInputStream fi = new FileInputStream(file.getAbsolutePath());
         ZipEntry entry = new ZipEntry(dirInterno + File.separator + file.getName());
         zipDestino.putNextEntry(entry);
