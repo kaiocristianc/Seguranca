@@ -11,10 +11,10 @@ public class Teste {
         Conectavel servidor = new Servidor();
         servidor.iniciarServicos();
 		GerenciadorArquivos gerenciadorArquivos = new GerenciadorArquivos();
-		gerenciadorArquivos.iniciarMonitoramento(servidor,"/home/zeroglosa/Downloads/pastaTeste");
-		File file = new File("/home/zeroglosa/Documentos/pastaTeste/popo/pepe/pipi/Seguranca-master.zip");
+		gerenciadorArquivos.iniciarMonitoramento(servidor,"/home/kaio/Downloads/pastaTeste");
+		File file = new File("/home/kaio/Documents/pastaTeste/papa/CampoMinado.tar.gz");
 		Map mapa = new HashMap();
 		mapa.put("arquivo",file);
-		gerenciadorArquivos.salvarArquivoLocalmente(mapa);
+		gerenciadorArquivos.atualizarArquivoLocalmente(mapa);
     }
 }
