@@ -1,14 +1,15 @@
 package utils;
 
+import com.sun.xml.internal.messaging.saaj.packaging.mime.internet.MimeUtility;
+
 import java.io.*;
 import java.security.SecureRandom;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
-import javax.mail.internet.MimeUtility;
 
 public class Encriptador{
 
-    public static byte[] encode(byte[] b,byte[]chave) throws Exception {
+    private static byte[] encode(byte[] b,byte[]chave) throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         OutputStream b64os = MimeUtility.encode(baos, "base64");
         b64os.write(b);
@@ -17,7 +18,7 @@ public class Encriptador{
 
     }
 
-    public static byte[] decode(byte[] b) throws Exception {
+    private static byte[] decode(byte[] b) throws Exception {
         ByteArrayInputStream inputStream = new ByteArrayInputStream(b);
         InputStream inputBase64 = MimeUtility.decode(inputStream, "base64");
         byte[] tmp = new byte[b.length];
@@ -32,11 +33,10 @@ public class Encriptador{
         return key;
     }
 
-    public static byte[] desencriptar(Object arquivo,byte[] chave) throws Exception {
-        byte[] arrayNaoEncriptado = getBytesParaEncriptacao(arquivo);
+    public static byte[] desencriptar(byte[] arrayEncriptado,byte[] chave) throws Exception {
         Cipher cipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
         cipher.init(2, getKey(chave));
-        byte arrayDesencriptado[] = cipher.doFinal(decode(arrayNaoEncriptado));
+        byte arrayDesencriptado[] = cipher.doFinal(decode(arrayEncriptado));
         return arrayDesencriptado;
     }
 
@@ -63,4 +63,10 @@ public class Encriptador{
         }
         return null;
     }
+
+	public static Object deserialize(byte[] data) throws IOException, ClassNotFoundException {
+		ByteArrayInputStream in = new ByteArrayInputStream(data);
+		ObjectInputStream is = new ObjectInputStream(in);
+		return is.readObject();
+	}
 }

@@ -5,6 +5,8 @@ import utils.Constantes;
 import utils.Monitor;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Observable;
@@ -37,18 +39,15 @@ public class GerenciadorArquivos implements Observer {
         System.out.println("Tentando atualizar");
     }
 
-    public void salvarArquivoLocalmente(Map mapa) throws Exception {
-        File file = (File) mapa.get("arquivo");
+    public void salvarArquivoLocalmente(File file) throws Exception {
         ArquivoUtils.criarArquivo(file, this.enderecoPasta);
     }
 
-    public void deletarArquivoLocalmente(Map mapa) {
-        File file = (File) mapa.get("arquivo");
+    public void deletarArquivoLocalmente(File file) {
         ArquivoUtils.deletarArquivo(file, this.enderecoPasta);
     }
 
-    public void atualizarArquivoLocalmente(Map mapa) throws Exception {
-        File file = (File) mapa.get("arquivo");
+    public void atualizarArquivoLocalmente(File file) throws Exception {
         ArquivoUtils.deletarArquivo(file, this.enderecoPasta);
         ArquivoUtils.criarArquivo(file, this.enderecoPasta);
     }
