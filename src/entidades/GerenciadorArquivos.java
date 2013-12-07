@@ -13,7 +13,7 @@ public class GerenciadorArquivos implements Observer {
 
     private MonitoradorLocal monitor;
     private String enderecoPasta;
-    private Conectavel conectavel;
+    private Conexao conectavel;
 
     public void iniciarMonitoramento(Conectavel conectavel, String enderecoPasta) throws Exception {
         this.enderecoPasta = enderecoPasta;
@@ -27,7 +27,7 @@ public class GerenciadorArquivos implements Observer {
     public void notificarAlteracaoParaOServidor(Map mapa) throws Exception {
         File file = new File((String)mapa.get("endereco"));
         mapa.put("endereco",file);
-        conectavel.executarRequisicaoServidor(mapa);
+        conectavel.enviarRequisicao(mapa);
     }
 
     public void salvarArquivoLocalmente(File file) throws Exception {

@@ -19,7 +19,7 @@ public abstract class Conectavel extends Thread {
 
     public abstract void iniciarServicos() throws Exception;
 
-    public void executarRequisicaoServidor(Map<String, Object> requisicao) throws Exception {
+    public void executarRequisicao(Map<String, Object> requisicao) throws Exception {
         File arquivo = (File) requisicao.get("arquivo");
         String ordem = (String) requisicao.get("ordem");
         if (ordem.equals(Constantes.SALVAR))
@@ -30,7 +30,7 @@ public abstract class Conectavel extends Thread {
             this.getGerenciadorArquivos().deletarArquivoLocalmente(arquivo);
     }
 
-    public abstract void enviarRequisicao(Map<String, Object> requisicao) throws Exception;
+
 
 
 }

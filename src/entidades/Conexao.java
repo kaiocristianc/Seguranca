@@ -39,15 +39,18 @@ class Conexao extends Thread implements Observer {
         }
     }
 
-
-
     @Override
     public void update(Observable observable, Object o) {
         Map mapa = (HashMap) o;
         try {
-            conectavel.executarRequisicaoServidor(mapa);
+            conectavel.executarRequisicao(mapa);
         } catch (Exception e) {
             System.out.println("Falha ao executar a requisição");
         }
+    }
+    public void enviarRequisicao(Map<String, Object> requisicao) throws Exception{
+
+
+
     }
 }

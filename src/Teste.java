@@ -19,7 +19,7 @@ public class Teste {
 //		servidor.chaveSimetrica = chaveSimetrica;
 //		servidor.iniciarServicos();
 //		Map requisicaoTratada = servidor.tratarRequisicaoParaLeitura(requisicaoCriptografada);
-//		servidor.executarRequisicaoServidor(requisicaoTratada);
+//		servidor.executarRequisicao(requisicaoTratada);
 //
 ////		byte[] c = s.getEncoded();
 //		File f = new File("/home/kaio/git1.8.1.2.tar.gz");
