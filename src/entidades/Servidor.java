@@ -33,7 +33,7 @@ public class Servidor extends Conectavel {
 			PrintStream saida = new PrintStream(this.conexao.getOutputStream());
 			Map requisicao = (HashMap) entrada.readObject();
 			if (autenticarUsuario(requisicao)) {
-				requisicao = tratarRequisicaoParaLeitura((byte[])requisicao.get("requisicao"));
+			//	requisicao = tratarRequisicaoParaLeitura((byte[])requisicao.get("requisicao"));
 				executarRequisicao(requisicao);
 			}
 		} catch (Exception e) {
