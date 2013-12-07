@@ -1,12 +1,4 @@
-import entidades.Servidor;
-import utils.Constantes;
-import utils.Encriptador;
-
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
 import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
 
 public class Teste {
 
@@ -27,7 +19,7 @@ public class Teste {
 //		servidor.chaveSimetrica = chaveSimetrica;
 //		servidor.iniciarServicos();
 //		Map requisicaoTratada = servidor.tratarRequisicaoParaLeitura(requisicaoCriptografada);
-//		servidor.executarRequisicao(requisicaoTratada);
+//		servidor.executarRequisicaoServidor(requisicaoTratada);
 //
 ////		byte[] c = s.getEncoded();
 //		File f = new File("/home/kaio/git1.8.1.2.tar.gz");

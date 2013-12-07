@@ -1,28 +1,31 @@
-package Teste;
+package utils;
 
-import javax.net.ssl.*;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
-import java.security.*;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 
-public class Utils{
+public class ConexaoUtils {
 
-    public static KeyStore getKeyStore(String tipo) throws KeyStoreException{
+    protected static KeyStore getKeyStore(String tipo) throws KeyStoreException{
 
         //utiliza a implementação do keystore provido pela Sun
         return KeyStore.getInstance(tipo);
 
     }
 
-    public static KeyManagerFactory getKMFactory(String algoritmo) throws NoSuchAlgorithmException{
+    protected static KeyManagerFactory getKMFactory(String algoritmo) throws NoSuchAlgorithmException{
 
         //cria um caminho de certificação baseado em X509
         return KeyManagerFactory.getInstance(algoritmo);
 
     }
 
-    public static SSLContext criaSSLContext(String protocolo) throws NoSuchAlgorithmException{
+    protected static SSLContext criaSSLContext(String protocolo) throws NoSuchAlgorithmException{
 
         //cria um SSLContext segundo o protocolo informado
         return SSLContext.getInstance(protocolo);

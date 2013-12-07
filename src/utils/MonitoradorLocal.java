@@ -10,14 +10,14 @@ import java.util.Observable;
 import static java.nio.file.LinkOption.NOFOLLOW_LINKS;
 import static java.nio.file.StandardWatchEventKinds.*;
 
-public class Monitor extends Observable {
+public class MonitoradorLocal extends Observable {
 
 	private final WatchService watcher;
 	private final Map<WatchKey, Path> keys;
 	private final boolean recursive;
 	private boolean trace = false;
 
-	public Monitor(Path dir, boolean recursive) throws IOException {
+	public MonitoradorLocal(Path dir, boolean recursive) throws IOException {
 		this.watcher = FileSystems.getDefault().newWatchService();
 		this.keys = new HashMap<WatchKey, Path>();
 		this.recursive = recursive;

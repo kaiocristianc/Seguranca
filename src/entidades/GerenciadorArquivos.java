@@ -1,12 +1,9 @@
 package entidades;
 
 import utils.ArquivoUtils;
-import utils.Constantes;
-import utils.Monitor;
+import utils.MonitoradorLocal;
 
 import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Observable;
@@ -14,7 +11,7 @@ import java.util.Observer;
 
 public class GerenciadorArquivos implements Observer {
 
-    private Monitor monitor;
+    private MonitoradorLocal monitor;
     private String enderecoPasta;
     private Conectavel conectavel;
 
@@ -22,21 +19,15 @@ public class GerenciadorArquivos implements Observer {
         this.enderecoPasta = enderecoPasta;
 //        this.conectavel = conectavel;
 //        Path dir = Paths.get(enderecoPasta);
-//        monitor = new Monitor(dir, true);
+//        monitor = new MonitoradorLocal(dir, true);
 //        monitor.addObserver(this);
 //        monitor.processEvents();
     }
 
-    public void salvarArquivoRemotamente(Map<String, String> mapa) {
-        System.out.println("Tentando salvar");
-    }
-
-    public void deletarArquivoRemotamente(Map<String, String> mapa) {
-        System.out.println("Tentando deletar");
-    }
-
-    public void atualizarArquivoRemotamente(Map<String, String> mapa) {
-        System.out.println("Tentando atualizar");
+    public void notificarAlteracaoParaOServidor(Map mapa) throws Exception {
+        File file = new File((String)mapa.get("endereco"));
+        mapa.put("endereco",file);
+        conectavel.executarRequisicaoServidor(mapa);
     }
 
     public void salvarArquivoLocalmente(File file) throws Exception {
@@ -55,12 +46,10 @@ public class GerenciadorArquivos implements Observer {
     @Override
     public void update(Observable observable, Object o) {
         Map<String, String> mapa = (HashMap) o;
-        String evento = mapa.get("evento");
-        if (evento.equals(Constantes.SALVAR))
-            salvarArquivoRemotamente(mapa);
-        else if (evento.equals(Constantes.ATUALIZAR))
-            atualizarArquivoRemotamente(mapa);
-        else if (evento.equals(Constantes.EXCLUIR))
-            deletarArquivoRemotamente(mapa);
+        try {
+            notificarAlteracaoParaOServidor(mapa);
+        } catch (Exception e) {
+            System.out.println("Notificando o servidor de alteração");
+        }
     }
 }
