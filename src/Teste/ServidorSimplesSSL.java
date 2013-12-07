@@ -1,32 +1,43 @@
 package Teste;
 
+import javax.net.ServerSocketFactory;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.SSLSessionContext;
 import java.io.*;
-import java.net.*;
-import javax.net.*;
-import javax.net.ssl.*;
-import java.security.*;
-import java.util.*;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.security.KeyStore;
+import java.security.Provider;
+import java.util.HashMap;
+import java.util.Map;
 
-public class ServidorSimplesSSL{
+public class ServidorSimplesSSL {
 
+    public static final int HTTPS_PORT = 8080;
     String keystore = "kservidor";
     char keystorepass[];
-    char keypassword[] ;
-    public static final int HTTPS_PORT = 8080;
+    char keypassword[];
     boolean autCliente;
     String nome;
     ObjectOutputStream out;
     ObjectInputStream in;
 
-    //construtor
-    public ServidorSimplesSSL(String nome, boolean autCliente, String password){
+    public ServidorSimplesSSL(String nome, boolean autCliente, String password) {
         this.nome = nome;
         this.autCliente = autCliente;
         keystorepass = password.toCharArray();
         keypassword = password.toCharArray();
     }
 
-    public ServerSocket criaSSLServerSocket() throws Exception{
+    public static void main(String[] args) throws Exception {
+        String password = "batuta";
+        ServidorSimplesSSL servidor = new ServidorSimplesSSL("Servidor HTTPs", false, password);
+        servidor.run();
+    }
+
+    public ServerSocket criaSSLServerSocket() throws Exception {
 
         KeyStore ks = Utils.getKeyStore("JKS");
         ks.load(new FileInputStream(keystore), keystorepass);
@@ -41,101 +52,76 @@ public class ServidorSimplesSSL{
 
         ServerSocketFactory ssf = contextoSSL.getServerSocketFactory();
         SSLServerSocket servidorSSL = (SSLServerSocket) ssf.createServerSocket(HTTPS_PORT);
-        //Se necessário, autentica o cliente
-        if (autCliente){
+        if (autCliente) {
             servidorSSL.setNeedClientAuth(autCliente);
         }
         return servidorSSL;
     }
 
-
-    public void run(){
-
+    public void run() {
         ServerSocket listen;
+        try {
 
-        try{
-            //vai criar um SSLServerSocket
             listen = criaSSLServerSocket();
-            System.out.println(this.nome+" executando na porta "+HTTPS_PORT);
+            System.out.println(this.nome + " executando na porta " + HTTPS_PORT);
             System.out.println("Aguardando conexao...");
-            //espera por uma conexão do cliente
-            Socket cliente = listen.accept();
-            Conexao con = new Conexao(cliente);
-        }catch(Exception e){
-            System.out.println("Exception "+e.getMessage());
+            while (true) {
+                Socket cliente = listen.accept();
+                System.out.println("Aceitando conexão!");
+                new Conexao(cliente);
+            }
+        } catch (Exception e) {
+            System.out.println("Exception " + e.getMessage());
             e.printStackTrace();
         }
 
     }
 
-
-    private void showPropSSLContext(SSLContext contextoSSL){
+    private void showPropSSLContext(SSLContext contextoSSL) {
 
         System.out.println("-------Informaçoes de contexto SSL-------");
 
         String protocol = contextoSSL.getProtocol();
-        System.out.println("Protocolo : "+protocol);
+        System.out.println("Protocolo : " + protocol);
 
         Provider provider = contextoSSL.getProvider();
-        System.out.println("Nome do provedor : "+provider.getName());
-        System.out.println("Versao do provedor : "+provider.getVersion());
+        System.out.println("Nome do provedor : " + provider.getName());
+        System.out.println("Versao do provedor : " + provider.getVersion());
         SSLSessionContext sslsessioncontext = contextoSSL.getServerSessionContext();
-
     }
 
-    //main
-    public static void main(String[] args) throws Exception{
-
-        System.out.print("Informe o password para o keystore do servidor:");
-        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-        String password = in.readLine();
-        ServidorSimplesSSL servidor = new ServidorSimplesSSL("Servidor HTTPs", false, password);
-        servidor.run();
-
-    }
-
-    //classe interna
     class Conexao extends Thread {
 
         Socket cliente;
-        BufferedReader in;
-        DataOutputStream out;
+        ObjectInputStream in;
+        PrintStream out;
 
-        public Conexao(Socket s) {
+        public Conexao(Socket s) throws Exception {
             cliente = s;
             try {
-                in = new BufferedReader(new InputStreamReader (cliente.getInputStream()));
-                out = new DataOutputStream(cliente.getOutputStream());
-            }catch (IOException e) {
-                System.out.println("Excecao lancada: "+e.getMessage());
+                out = new PrintStream(cliente.getOutputStream());
+                in = new ObjectInputStream(cliente.getInputStream());
+            } catch (IOException e) {
+                System.out.println("Excessão ao criar o in e o out do client." + e.getMessage());
             }
-            this.start(); // chama o método run
+            this.start();
         }
 
-
-        public void run(){
+        public void run() {
             try {
-                String request = in.readLine();
-                System.out.println( "Request: "+request );
-                StringTokenizer st = new StringTokenizer(request);
-                if ((st.countTokens() >= 2) && st.nextToken().equals("GET")) {
-                    if ((request = st.nextToken()).startsWith("/"))
-                        request = request.substring( 1 );
-                    if (request.equals(""))
-                        request = request + "index.html";
-                    File arq = new File(request);
-                    leDocumento(out, arq);
-                }
-                else{
-                    out.writeBytes( "Erro 400: arquivo nao encontrado.");
-                }
-                cliente.close();
-            }catch (Exception e) {
-                System.out.println("Excecao lancada: " + e.getMessage());
+                Map request = (HashMap) in.readObject();
+                System.out.println("Request: " + request);
+                String texto = "Eita nóis";
+                out.write(getBytesParaEncriptacao(texto));
+
+            } catch (Exception e) {
+                System.out.println("EROOOOOO");
             }
         }
+
 
         // Lê o arquivo e o envia para o cliente
+
         public void leDocumento(DataOutputStream out, File arq) throws Exception {
             try {
                 DataInputStream in = new DataInputStream(new FileInputStream(arq));
@@ -144,21 +130,34 @@ public class ServidorSimplesSSL{
                 in.readFully(buffer);
                 in.close();
                 out.writeBytes("HTTP/1.0 200 OK\r\n");
-                out.writeBytes("Tamanho do conteúdo: " + tam +"\r\n");
+                out.writeBytes("Tamanho do conteúdo: " + tam + "\r\n");
                 out.writeBytes("Tipo do conteúdo: text/html\r\n\r\n");
                 out.write(buffer);
                 out.flush();
-            }catch (Exception e) {
+            } catch (Exception e) {
                 out.writeBytes("<html><head><title>Erro</title></head><body>\r\n\r\n");
                 out.writeBytes("HTTP/1.0 400 " + e.getMessage() + "\r\n");
                 out.writeBytes("Tipo do conteúdo: text/html\r\n\r\n");
                 out.writeBytes("</body></html>");
                 out.flush();
-            }finally {
+            } finally {
                 out.close();
             }
         }
 
+    }
+
+    private static byte[] getBytesParaEncriptacao(Object arquivo){
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        ObjectOutput out;
+        try{
+            out = new ObjectOutputStream(bos);
+            out.writeObject(arquivo);
+            return bos.toByteArray();
+        }catch(Exception e){
+            System.out.println("Erro ao bytear o arquivo.Erro:"+e.getMessage());
+        }
+        return null;
     }
 
 }

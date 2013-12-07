@@ -3,6 +3,10 @@ package Teste;
 import java.io.*;
 import java.net.*;
 import java.security.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import javax.net.ssl.*;
 
 public class ClienteSimplesSSL{
@@ -40,45 +44,55 @@ public class ClienteSimplesSSL{
     public void run(){
 
         try{
-            socket = criaSSLSocket(host); //cria o socket SSL que o cliente utilizará
+            socket = criaSSLSocket(host);
         }catch(Exception e){
-            System.out.println("Excecao 1 lancada : "+e.getMessage());
+            System.out.println("Excecao ao criar o SSLSocket erro: "+e.getMessage());
         }
 
         try{
-            BufferedWriter out = new BufferedWriter(new
-                    OutputStreamWriter(socket.getOutputStream()));
-            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            out.write("GET / HTTP/1.0\n\n");
-            out.flush();
-            //o trecho a seguir pega o arquivo do servidor, lê esse arquivo e imprime na tela
-            String linha;
-            StringBuffer sb = new StringBuffer();
-            while((linha = in.readLine()) != null) {
-                sb.append(linha);
-                sb.append("\n");
-            }
-            out.close();
-            in.close();
-            System.out.println(sb.toString());
+            Map mapa = new HashMap();
+            mapa.put("entrada",new ArrayList());
+            byte[] meumapa = getBytesParaEncriptacao(mapa);
+
+            PrintStream saida = new PrintStream(socket.getOutputStream());
+            saida.write(meumapa);
+            saida.flush();
+            ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+            System.out.println("");
+
         }catch(Exception e){
-            System.out.println("Excecao 2 lancada: "+e.getMessage());
+            System.out.println("Excessão durante a transação.Erro: "+e.getMessage());
         }
 
     }
 
-    public static void main(String argv[]) throws IOException{
-
+    public static void main(String argv[]) {
+                                           try{
         if (argv.length != 1) {
             System.out.println("Deve ser informado o host em que o cliente deve se conectar.");
             System.exit(0);
         }
 
-        System.out.print("Informe o password para o keystore do cliente:");
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-        String password = in.readLine();
+        String password = "batuta";
         ClienteSimplesSSL cliente = new ClienteSimplesSSL("Cliente 1", password, argv[0]);
         cliente.run();
+                                           }catch(Exception e){
+                                               System.out.println("alalelele");
+                                           }
     }
 
+
+    private static byte[] getBytesParaEncriptacao(Object arquivo){
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        ObjectOutput out;
+        try{
+            out = new ObjectOutputStream(bos);
+            out.writeObject(arquivo);
+            return bos.toByteArray();
+        }catch(Exception e){
+            System.out.println("Erro ao bytear o arquivo.Erro:"+e.getMessage());
+        }
+        return null;
+    }
 }
