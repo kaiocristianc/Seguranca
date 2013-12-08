@@ -4,6 +4,8 @@ import utils.ArquivoUtils;
 import utils.MonitoradorLocal;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Observable;
@@ -13,21 +15,21 @@ public class GerenciadorArquivos implements Observer {
 
     private MonitoradorLocal monitor;
     private String enderecoPasta;
-    private Conexao conectavel;
+    private Conexao conexao;
 
-    public void iniciarMonitoramento(Conectavel conectavel, String enderecoPasta) throws Exception {
+    public void iniciarMonitoramento(Conexao conexao, String enderecoPasta) throws Exception {
         this.enderecoPasta = enderecoPasta;
-//        this.conectavel = conectavel;
-//        Path dir = Paths.get(enderecoPasta);
-//        monitor = new MonitoradorLocal(dir, true);
-//        monitor.addObserver(this);
-//        monitor.processEvents();
+        this.conexao = conexao;
+        Path dir = Paths.get(enderecoPasta);
+        monitor = new MonitoradorLocal(dir, true);
+        monitor.addObserver(this);
+        monitor.processEvents();
     }
 
     public void notificarAlteracaoParaOServidor(Map mapa) throws Exception {
         File file = new File((String)mapa.get("endereco"));
         mapa.put("endereco",file);
-        conectavel.enviarRequisicao(mapa);
+        conexao.executarRequisicao(mapa);
     }
 
     public void salvarArquivoLocalmente(File file) throws Exception {
@@ -47,9 +49,10 @@ public class GerenciadorArquivos implements Observer {
     public void update(Observable observable, Object o) {
         Map<String, String> mapa = (HashMap) o;
         try {
+            System.out.println("Notificando alteração");
             notificarAlteracaoParaOServidor(mapa);
         } catch (Exception e) {
-            System.out.println("Notificando o servidor de alteração");
+            System.out.println("Erro Notificando o servidor de alteração.Erro:"+e.getMessage());
         }
     }
 }

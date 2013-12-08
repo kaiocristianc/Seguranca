@@ -1,6 +1,6 @@
 package entidades;
 
-import Teste.Utils;
+import utils.Utils;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Cliente {
+public class Cliente extends Conectavel{
 
     private static final int HTTPS_PORT = 8080;
     private static SSLSocket socket;
@@ -21,6 +21,8 @@ public class Cliente {
     private String nome;
     private String host;
 
+    public Cliente(){}
+    
     public Cliente(String nome, String password, String host) {
         this.nome = nome;
         this.password = password.toCharArray();
@@ -70,20 +72,29 @@ public class Cliente {
 
         try {
             Map mapa = new HashMap();
-            mapa.put("entrada", new ArrayList());
+            File file = new File("/home/kaio/Documents/pastaTeste/bananaaaaaa");
+            mapa.put("arquivo", file);
+            mapa.put("evento", "ENTRY_CREATE");
             byte[] meumapa = Utils.getBytes(mapa);
-
             PrintStream saida = new PrintStream(socket.getOutputStream());
             saida.write(meumapa);
             saida.flush();
-            while(true){
-                saida.write(Utils.getBytes("awee"));
-                saida.flush();
-            }
-
         } catch (Exception e) {
-            System.out.println("Excessão durante a transação.Erro: " + e.getMessage());
+            System.out.println("Excessão durante o run do cliente.Erro: " + e.getMessage());
         }
 
+    }
+
+    @Override
+    public void iniciarServicos() throws Exception {
+        String host = "localhost";
+        try {
+            BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+            String password = "batuta";
+            Cliente cliente = new Cliente("Cliente 1", password, host);
+            cliente.run();
+        } catch (Exception e) {
+            System.out.println("Falha ao iniciar os serviços do cliente.Erro:"+e.getMessage());
+        }
     }
 }

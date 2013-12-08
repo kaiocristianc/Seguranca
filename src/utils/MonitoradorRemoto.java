@@ -1,33 +1,31 @@
 package utils;
 
-import entidades.Conectavel;
-
 import java.io.ObjectInputStream;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Observable;
+import entidades.Conexao;
 
-public class MonitoradorRemoto extends Observable implements Runnable{
+public class MonitoradorRemoto extends Thread{
 
     private ObjectInputStream in;
     private Socket socket;
+    private Conexao conexao;
 
-    public MonitoradorRemoto( ObjectInputStream in, Socket socket) {
+    public MonitoradorRemoto(ObjectInputStream in, Socket socket, Conexao conexao) {
         this.in = in;
         this.socket = socket;
+        this.conexao = conexao;
     }
 
     public void run() {
         try {
             while (true) {
-                in = new ObjectInputStream(socket.getInputStream());
                 Map mapa = (HashMap)in.readObject();
-                this.setChanged();
-                this.notifyObservers(mapa);
+                conexao.executarRequisicao(mapa);
             }
         } catch (Exception e) {
-            System.out.println("Erro na thread de leitura");
+            System.out.println("Erro na thread de leitura na classe Monitorador Remoto.Erro:"+e.getMessage());
         }
     }
 }

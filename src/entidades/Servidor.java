@@ -1,26 +1,14 @@
 package entidades;
 
-import Teste.Utils;
-import utils.MonitoradorRemoto;
-
-import javax.net.ServerSocketFactory;
+import utils.Utils;
 import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.*;
 import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.PrintStream;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.net.*;
 import java.security.KeyStore;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Observable;
-import java.util.Observer;
+import javax.net.ServerSocketFactory;
 
 public class Servidor extends Conectavel {
-
     public static final int HTTPS_PORT = 8080;
     String keystore = "kservidor";
     char keystorepass[];
@@ -28,6 +16,8 @@ public class Servidor extends Conectavel {
     boolean autCliente;
     String nome;
 
+    public Servidor(){}
+    
     public Servidor(String nome, boolean autCliente, String password) {
         this.nome = nome;
         this.autCliente = autCliente;
@@ -70,27 +60,20 @@ public class Servidor extends Conectavel {
             while (true) {
                 Socket cliente = listen.accept();
                 System.out.println("Aceitando conexão!");
-                new Conexao(cliente, this);
+                Conexao x = new Conexao(cliente, this);
+                this.getGerenciadorArquivos().iniciarMonitoramento(x,"/home/kaio/Downloads/pastaTeste");
             }
         } catch (Exception e) {
-            System.out.println("Exception " + e.getMessage());
+            System.out.println("Exception no run do servidor.Erro:" + e.getMessage());
             e.printStackTrace();
         }
-
     }
 
     @Override
     public void iniciarServicos() throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
+        String password = "batuta";
+        Servidor servidor = new Servidor("Servidor HTTPs", false, password);
+        servidor.run();
     }
-
-    @Override
-    public void enviarRequisicao(Map<String, Object> requisicao) throws Exception {
-
-
-
-    }
-
-
 }
 
