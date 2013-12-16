@@ -1,6 +1,8 @@
-package entidades;
+package Conexao;
 
-import utils.MonitoradorRemoto;
+import Monitoradores.MonitoradorRemoto;
+import entidades.Conectavel;
+
 import java.io.*;
 import java.net.Socket;
 import java.util.*;

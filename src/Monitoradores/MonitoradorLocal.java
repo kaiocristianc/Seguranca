@@ -1,4 +1,4 @@
-package utils;
+package Monitoradores;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -36,6 +36,7 @@ public class MonitoradorLocal extends Observable {
 
 	private void sinalizarMudancaArquivo(String arquivoOuPasta, String tipoEvento) {
 		Map<String, String> mapa = new HashMap<String, String>();
+        System.out.println("sinalizando!");
 		mapa.put("endereco", arquivoOuPasta);
 		mapa.put("evento", tipoEvento);
 		this.setChanged();

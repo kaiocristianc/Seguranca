@@ -1,5 +1,8 @@
-package entidades;
+package Conexao;
 
+import entidades.Conectavel;
+import entidades.Conexao;
+import entidades.GerenciadorArquivos;
 import utils.Utils;
 
 import javax.net.ssl.KeyManagerFactory;
@@ -8,11 +11,8 @@ import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.*;
 import java.security.KeyStore;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
-public class Cliente extends Conectavel{
+public class Cliente extends Conectavel {
 
     private static final int HTTPS_PORT = 8080;
     private static SSLSocket socket;
@@ -71,14 +71,10 @@ public class Cliente extends Conectavel{
         }
 
         try {
-            Map mapa = new HashMap();
-            File file = new File("/home/kaio/Documents/pastaTeste/bananaaaaaa");
-            mapa.put("arquivo", file);
-            mapa.put("evento", "ENTRY_CREATE");
-            byte[] meumapa = Utils.getBytes(mapa);
-            PrintStream saida = new PrintStream(socket.getOutputStream());
-            saida.write(meumapa);
-            saida.flush();
+            Conexao x = new Conexao(socket,this);
+            this.gerenciadorArquivos = new GerenciadorArquivos(x,"/home/kaio/Downloads/pastaTeste");
+            Thread threadGerenciadorArquivos = this.gerenciadorArquivos;
+            threadGerenciadorArquivos.start();
         } catch (Exception e) {
             System.out.println("Excessão durante o run do cliente.Erro: " + e.getMessage());
         }
