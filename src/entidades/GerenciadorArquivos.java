@@ -1,35 +1,34 @@
 package entidades;
 
+import Monitoradores.MonitoradorLocal;
 import utils.ArquivoUtils;
-import utils.MonitoradorLocal;
-
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Observable;
-import java.util.Observer;
+import java.util.*;
 
-public class GerenciadorArquivos implements Observer {
+public class GerenciadorArquivos extends Thread implements Observer {
 
     private MonitoradorLocal monitor;
     private String enderecoPasta;
-    private Conexao conexao;
+    private Conectavel conectavel;
 
-    public void iniciarMonitoramento(Conexao conexao, String enderecoPasta) throws Exception {
+    public GerenciadorArquivos(Conectavel conectavel, String enderecoPasta)throws Exception{
         this.enderecoPasta = enderecoPasta;
-        this.conexao = conexao;
+        this.conectavel = conectavel;
         Path dir = Paths.get(enderecoPasta);
         monitor = new MonitoradorLocal(dir, true);
         monitor.addObserver(this);
+    }
+
+    public void run(){
         monitor.processEvents();
     }
 
-    public void notificarAlteracaoParaOServidor(Map mapa) throws Exception {
+    public void notificarAlteracaoAoResponsavel(Map mapa) throws Exception {
         File file = new File((String)mapa.get("endereco"));
         mapa.put("endereco",file);
-        conexao.executarRequisicao(mapa);
+        conectavel.sinalizarAlteracaoLocal(mapa);
     }
 
     public void salvarArquivoLocalmente(File file) throws Exception {
@@ -50,7 +49,7 @@ public class GerenciadorArquivos implements Observer {
         Map<String, String> mapa = (HashMap) o;
         try {
             System.out.println("Notificando alteração");
-            notificarAlteracaoParaOServidor(mapa);
+            notificarAlteracaoAoResponsavel(mapa);
         } catch (Exception e) {
             System.out.println("Erro Notificando o servidor de alteração.Erro:"+e.getMessage());
         }

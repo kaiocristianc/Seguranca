@@ -1,7 +1,6 @@
 package Conexao;
 
 import entidades.Conectavel;
-import entidades.Conexao;
 import entidades.GerenciadorArquivos;
 import utils.Utils;
 
@@ -11,6 +10,7 @@ import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.*;
 import java.security.KeyStore;
+import java.util.Map;
 
 public class Cliente extends Conectavel {
 
@@ -72,7 +72,7 @@ public class Cliente extends Conectavel {
 
         try {
             Conexao x = new Conexao(socket,this);
-            this.gerenciadorArquivos = new GerenciadorArquivos(x,"/home/kaio/Downloads/pastaTeste");
+           // this.gerenciadorArquivos = new GerenciadorArquivos(x,"/home/kaio/Downloads/pastaTeste");
             Thread threadGerenciadorArquivos = this.gerenciadorArquivos;
             threadGerenciadorArquivos.start();
         } catch (Exception e) {
@@ -92,5 +92,10 @@ public class Cliente extends Conectavel {
         } catch (Exception e) {
             System.out.println("Falha ao iniciar os serviços do cliente.Erro:"+e.getMessage());
         }
+    }
+
+    @Override
+    public void sinalizarAlteracaoLocal(Map<String, Object> requisicao) throws Exception {
+        //To change body of implemented methods use File | Settings | File Templates.
     }
 }

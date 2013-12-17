@@ -4,7 +4,7 @@ import java.io.ObjectInputStream;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
-import entidades.Conexao;
+import Conexao.Conexao;
 
 public class MonitoradorRemoto extends Thread{
 

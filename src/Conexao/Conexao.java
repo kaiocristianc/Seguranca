@@ -35,7 +35,7 @@ public class Conexao extends Thread{
     }
 
     public void executarRequisicao(Map mapa) throws Exception{
-        conectavel.executarRequisicao(mapa);
+        conectavel.sinalizarAlteracaoLocal(mapa);
     }
 
 
