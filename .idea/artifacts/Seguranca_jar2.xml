@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Seguranca:jar2">
+    <output-path>$PROJECT_DIR$/out/artifacts/Seguranca_jar2</output-path>
+    <root id="archive" name="Seguranca.jar">
+      <element id="module-output" name="Seguranca" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/mail-1.4.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/KaioLibrary.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
