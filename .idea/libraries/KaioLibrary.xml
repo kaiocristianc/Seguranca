@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="KaioLibrary">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/KaioLibrary.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

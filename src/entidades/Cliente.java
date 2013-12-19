@@ -1,9 +1,6 @@
-package Conexao;
+package entidades;
 
-import entidades.Conectavel;
-import entidades.GerenciadorArquivos;
 import utils.Utils;
-
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
@@ -20,28 +17,23 @@ public class Cliente extends Conectavel {
     private char[] password;
     private String nome;
     private String host;
+    private String enderecoPasta;
 
-    public Cliente(){}
-    
-    public Cliente(String nome, String password, String host) {
+    public Cliente() {
+    }
+
+    public Cliente(String endereco,String nome, String password, String host) {
         this.nome = nome;
         this.password = password.toCharArray();
         this.host = host;
+        this.enderecoPasta = endereco;
     }
 
     public static void main(String argv[]) {
         try {
-            if (argv.length != 1) {
-                System.out.println("Deve ser informado o host em que o cliente deve se conectar.");
-                System.exit(0);
-            }
-
-            BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-            String password = "batuta";
-            Cliente cliente = new Cliente("Cliente 1", password, argv[0]);
-            cliente.run();
+            new Cliente().iniciarServicos(argv[0],argv[1]);
         } catch (Exception e) {
-            System.out.println("alalelele");
+            System.out.println("Erro no main do cliente");
         }
     }
 
@@ -63,39 +55,44 @@ public class Cliente extends Conectavel {
     }
 
     public void run() {
-
         try {
-            socket = criaSSLSocket(host);
-        } catch (Exception e) {
-            System.out.println("Excecao ao criar o SSLSocket erro: " + e.getMessage());
-        }
-
-        try {
-            Conexao x = new Conexao(socket,this);
-           // this.gerenciadorArquivos = new GerenciadorArquivos(x,"/home/kaio/Downloads/pastaTeste");
-            Thread threadGerenciadorArquivos = this.gerenciadorArquivos;
-            threadGerenciadorArquivos.start();
+            iniciarMonitoramentoArquivos(enderecoPasta);
+            System.out.println("Monitoramento sendo realizado na pasta:"+enderecoPasta);
+            iniciarTratadorRedundancia();
+            PrintStream out = new PrintStream(socket.getOutputStream());
+           System.out.println("Enviando o nome:" + nome);
+            out.write(Utils.getBytes(nome));
+            out.flush();
+            this.escutarRequisicoes(socket);
         } catch (Exception e) {
             System.out.println("Excessão durante o run do cliente.Erro: " + e.getMessage());
         }
-
     }
 
     @Override
-    public void iniciarServicos() throws Exception {
+    public void iniciarServicos(String enderecoPasta,String nome) throws Exception {
         String host = "localhost";
         try {
-            BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
             String password = "batuta";
-            Cliente cliente = new Cliente("Cliente 1", password, host);
+            Cliente cliente = new Cliente(enderecoPasta,nome, password, host);
+            cliente.socket = cliente.criaSSLSocket(host);
+
             cliente.run();
         } catch (Exception e) {
-            System.out.println("Falha ao iniciar os serviços do cliente.Erro:"+e.getMessage());
+            System.out.println("Falha ao iniciar os serviços do cliente.Erro:" + e.getMessage());
         }
     }
 
     @Override
     public void sinalizarAlteracaoLocal(Map<String, Object> requisicao) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
+        try {
+            String evento = (String)requisicao.get("evento");
+            System.out.println("Cliente sinalizando alteração local:"+evento);
+            PrintStream saidaCliente = new PrintStream(socket.getOutputStream());
+            saidaCliente.write(Utils.getBytes(requisicao));
+            saidaCliente.flush();
+        } catch (Exception e) {
+            System.out.println("Falha ao sinalizar a alteração local, cliente.Falha:" + e.getMessage());
+        }
     }
 }
