@@ -1,11 +1,24 @@
 package utils;
 
-/**
- * Created with IntelliJ IDEA.
- * User: kaio
- * Date: 12/17/13
- * Time: 9:26 PM
- * To change this template use File | Settings | File Templates.
- */
-public class TratatorRedundancia {
+import entidades.GerenciadorArquivos;
+
+public class TratatorRedundancia extends Thread {
+
+    private GerenciadorArquivos gerenciadorArquivos;
+
+    public TratatorRedundancia(GerenciadorArquivos gerenciadorArquivos) {
+        this.gerenciadorArquivos = gerenciadorArquivos;
+    }
+
+    public void run() {
+        System.out.println("Iniciando gerenciador de redundancia");
+        while (true) {
+            try {
+                Thread.sleep(3000);
+                this.gerenciadorArquivos.destravarArquivo();
+            } catch (Exception e) {
+            }
+        }
+
+    }
 }

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_seguranca" default="compile.module.seguranca">
+  <dirname property="module.seguranca.basedir" file="${ant.file.module_seguranca}"/>
+  
+  <property name="module.jdk.home.seguranca" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.seguranca" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.seguranca" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.seguranca" value="${compiler.args}"/>
+  
+  <property name="seguranca.output.dir" value="${module.seguranca.basedir}/out/production/Seguranca"/>
+  <property name="seguranca.testoutput.dir" value="${module.seguranca.basedir}/out/test/Seguranca"/>
+  
+  <path id="seguranca.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="seguranca.module.production.classpath">
+    <path refid="${module.jdk.classpath.seguranca}"/>
+    <pathelement location="${basedir}/lib/mail-1.4.jar"/>
+    <path refid="library.kaiolibrary.classpath"/>
+  </path>
+  
+  <path id="seguranca.runtime.production.module.classpath">
+    <pathelement location="${seguranca.output.dir}"/>
+    <pathelement location="${basedir}/lib/mail-1.4.jar"/>
+    <path refid="library.kaiolibrary.classpath"/>
+  </path>
+  
+  <path id="seguranca.module.classpath">
+    <path refid="${module.jdk.classpath.seguranca}"/>
+    <pathelement location="${seguranca.output.dir}"/>
+    <pathelement location="${basedir}/lib/mail-1.4.jar"/>
+    <path refid="library.kaiolibrary.classpath"/>
+  </path>
+  
+  <path id="seguranca.runtime.module.classpath">
+    <pathelement location="${seguranca.testoutput.dir}"/>
+    <pathelement location="${seguranca.output.dir}"/>
+    <pathelement location="${basedir}/lib/mail-1.4.jar"/>
+    <path refid="library.kaiolibrary.classpath"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.seguranca">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.seguranca">
+    <patternset refid="excluded.from.module.seguranca"/>
+  </patternset>
+  
+  <path id="seguranca.module.sourcepath">
+    <dirset dir="${module.seguranca.basedir}">
+      <include name="src"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.seguranca" depends="compile.module.seguranca.production,compile.module.seguranca.tests" description="Compile module Seguranca"/>
+  
+  <target name="compile.module.seguranca.production" depends="register.custom.compilers" description="Compile module Seguranca; production classes">
+    <mkdir dir="${seguranca.output.dir}"/>
+    <javac2 destdir="${seguranca.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.seguranca}/javac">
+      <compilerarg line="${compiler.args.seguranca}"/>
+      <bootclasspath refid="seguranca.module.bootclasspath"/>
+      <classpath refid="seguranca.module.production.classpath"/>
+      <src refid="seguranca.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.seguranca"/>
+    </javac2>
+    
+    <copy todir="${seguranca.output.dir}">
+      <fileset dir="${module.seguranca.basedir}/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.seguranca.tests" depends="register.custom.compilers,compile.module.seguranca.production" description="compile module Seguranca; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.seguranca" description="cleanup module">
+    <delete dir="${seguranca.output.dir}"/>
+    <delete dir="${seguranca.testoutput.dir}"/>
+  </target>
+</project>

@@ -13,25 +13,30 @@ public class Cliente extends Conectavel {
 
     private static final int HTTPS_PORT = 8080;
     private static SSLSocket socket;
-    private String keystore = "kcliente";
-    private char[] password;
+    private String keystore;
+    private char[] byteSenha;
+    private String senha;
     private String nome;
     private String host;
     private String enderecoPasta;
 
-    public Cliente() {
-    }
-
-    public Cliente(String endereco,String nome, String password, String host) {
+    public Cliente(String keystore,String endereco,String nome, String password, String host) {
         this.nome = nome;
-        this.password = password.toCharArray();
+        this.senha = password;
+        this.byteSenha = password.toCharArray();
         this.host = host;
         this.enderecoPasta = endereco;
+        this.keystore = keystore;
     }
 
     public static void main(String argv[]) {
         try {
-            new Cliente().iniciarServicos(argv[0],argv[1]);
+            String senha = argv[0];
+            String enderecoKeyStore = argv[1];
+            String pastaMonitorada = argv[2];
+            String nome_senha = argv[3];
+            String local = argv[4];
+            new Cliente(enderecoKeyStore,pastaMonitorada,nome_senha,senha,local).iniciarServicos(enderecoKeyStore,pastaMonitorada,nome_senha);
         } catch (Exception e) {
             System.out.println("Erro no main do cliente");
         }
@@ -40,10 +45,10 @@ public class Cliente extends Conectavel {
     private SSLSocket criaSSLSocket(String host) throws Exception {
 
         KeyStore ks = Utils.getKeyStore("JKS");
-        ks.load(new FileInputStream(keystore), password);
+        ks.load(new FileInputStream(keystore), byteSenha);
 
         KeyManagerFactory kmf = Utils.getKMFactory("SunX509");
-        kmf.init(ks, password);
+        kmf.init(ks, byteSenha);
 
         SSLContext sslcontext = Utils.criaSSLContext("SSLv3");
         sslcontext.init(kmf.getKeyManagers(), null, null);
@@ -70,13 +75,10 @@ public class Cliente extends Conectavel {
     }
 
     @Override
-    public void iniciarServicos(String enderecoPasta,String nome) throws Exception {
-        String host = "localhost";
+    public void iniciarServicos(String keystore,String enderecoPasta,String nome) throws Exception {
         try {
-            String password = "batuta";
-            Cliente cliente = new Cliente(enderecoPasta,nome, password, host);
+            Cliente cliente = new Cliente(keystore,enderecoPasta,nome,senha, host);
             cliente.socket = cliente.criaSSLSocket(host);
-
             cliente.run();
         } catch (Exception e) {
             System.out.println("Falha ao iniciar os serviços do cliente.Erro:" + e.getMessage());

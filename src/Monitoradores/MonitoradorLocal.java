@@ -36,7 +36,6 @@ public class MonitoradorLocal extends Observable {
 
 	private void sinalizarMudancaArquivo(String arquivoOuPasta, String tipoEvento) {
 		Map<String, String> mapa = new HashMap<String, String>();
-        System.out.println("sinalizando!");
 		mapa.put("endereco", arquivoOuPasta);
 		mapa.put("evento", tipoEvento);
 		this.setChanged();
@@ -48,11 +47,9 @@ public class MonitoradorLocal extends Observable {
 		if (trace) {
 			Path prev = keys.get(key);
 			if (prev == null) {
-				System.out.println("PROBLEM!Entrou no REGISTRO");
 				sinalizarMudancaArquivo(dir.toString(), "REGISTRO");
 			} else {
 				if (!dir.equals(prev)) {
-					System.out.println("PROBLEM!Entrou no UPDATE");
 					sinalizarMudancaArquivo(dir.toString(), "UPDATE");
 				}
 			}

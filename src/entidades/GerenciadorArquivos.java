@@ -2,6 +2,8 @@ package entidades;
 
 import Monitoradores.MonitoradorLocal;
 import utils.ArquivoUtils;
+import utils.Constantes;
+
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -12,22 +14,39 @@ public class GerenciadorArquivos extends Thread implements Observer {
     private MonitoradorLocal monitor;
     private String enderecoPasta;
     private Conectavel conectavel;
+    private String arquivoTravado = "";
 
-    public GerenciadorArquivos(Conectavel conectavel, String enderecoPasta)throws Exception{
+    public void destravarArquivo() {
+        this.arquivoTravado = "";
+    }
+
+
+    public GerenciadorArquivos(Conectavel conectavel, String enderecoPasta) throws Exception {
         this.enderecoPasta = enderecoPasta;
         this.conectavel = conectavel;
+        tratarExistenciaCliente(enderecoPasta);
         Path dir = Paths.get(enderecoPasta);
         monitor = new MonitoradorLocal(dir, true);
         monitor.addObserver(this);
     }
 
-    public void run(){
+    private void tratarExistenciaCliente(String pasta) {
+        File file = new File(pasta);
+        if (!file.exists())
+            file.mkdirs();
+    }
+
+    public void run() {
         monitor.processEvents();
     }
 
     public void notificarAlteracaoAoResponsavel(Map mapa) throws Exception {
-        File file = new File((String)mapa.get("endereco"));
-        mapa.put("endereco",file);
+        String acao = (String) mapa.get("evento");
+        if (!acao.equals(Constantes.EXCLUIR)) {
+            File file = new File((String) mapa.get("endereco"));
+            mapa.remove("endereco");
+            mapa.put("arquivo", file);
+        }
         conectavel.sinalizarAlteracaoLocal(mapa);
     }
 
@@ -45,13 +64,16 @@ public class GerenciadorArquivos extends Thread implements Observer {
     }
 
     @Override
-    public void update(Observable observable, Object o) {
-        Map<String, String> mapa = (HashMap) o;
+    public void update(Observable observable, Object mapaArquivo) {
+        Map<String, String> mapa = (HashMap) mapaArquivo;
         try {
-            System.out.println("Notificando alteração");
-            notificarAlteracaoAoResponsavel(mapa);
+            String nomeArquivo = mapa.get("endereco");
+            if (!arquivoTravado.equals(nomeArquivo)) {
+                arquivoTravado = nomeArquivo;
+                notificarAlteracaoAoResponsavel(mapa);
+            }
         } catch (Exception e) {
-            System.out.println("Erro Notificando o servidor de alteração.Erro:"+e.getMessage());
+            System.out.println("Erro Notificando o servidor de alteração.Erro:" + e.getMessage());
         }
     }
 }

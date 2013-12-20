@@ -22,9 +22,8 @@ import javax.net.ServerSocketFactory;
 public class Servidor extends Conectavel {
     //Configuração
     public static final int HTTPS_PORT = 8080;
-    String keystore = "kservidor";
-    static String password = "batuta";
-    static String nomeServidor;
+    String keystore;
+    static String password;
     //-------------
     char keystorepass[];
     char keypassword[];
@@ -33,21 +32,30 @@ public class Servidor extends Conectavel {
     private String pasta;
     private Map mapaCliente;
     private static Map clientes;
-    private boolean transacaoAndamento = false;
 
-    public Servidor(String enderecoPasta,String nome, boolean autCliente, String password, Map cliente) {
+    public Servidor(String passwordKeyStore, String keyStore, String enderecoPasta, String nome,  Map cliente) {
         this.nome = nome;
         this.pasta = enderecoPasta;
-        this.autCliente = autCliente;
-        keystorepass = password.toCharArray();
-        keypassword = password.toCharArray();
+        keystorepass = passwordKeyStore.toCharArray();
+        keypassword = passwordKeyStore.toCharArray();
         this.mapaCliente = cliente;
+        this.keystore = keyStore;
+        password = passwordKeyStore;
     }
 
     public static void main(String[] args) throws Exception {
         try {
-            Servidor servidor = new Servidor(args[0],args[1], false, password, null);
-            servidor.iniciarServicos(args[0],args[1]);
+            String senhaKeyStore = args[0];
+            String enderecoKeyStore = args[1];
+            String pastaAhSerMonitorada = args[2];
+            String nomeServidor = args[3];
+            String arquivoSenhas = args[4];
+
+            System.out.println("Iniciando main servidor com parametros:"+args);
+
+            Autenticador.definirArquivoSenhas(arquivoSenhas);
+            Servidor servidor = new Servidor(senhaKeyStore,enderecoKeyStore, pastaAhSerMonitorada, nomeServidor, null);
+            servidor.iniciarServicos(args[1], args[1], args[2]);
         } catch (Exception e) {
             System.out.println("Erro no main do servidor:" + e.getMessage());
         }
@@ -77,10 +85,11 @@ public class Servidor extends Conectavel {
             Socket cliente = (Socket) mapaCliente.get("cliente");
             ObjectInputStream in = new ObjectInputStream(cliente.getInputStream());
             PrintStream out = new PrintStream(cliente.getOutputStream());
-            String nomeUsuario = (String) in.readObject();
+            String hashAutenticacao = (String) in.readObject();
+            String nomeUsuario = Autenticador.autenticar(hashAutenticacao);
             String pastaCliente = pasta + "/" + nomeUsuario;
             iniciarMonitoramentoArquivos(pastaCliente);
-            System.out.println("Monitoramento sendo realizado na pasta:"+pastaCliente);
+            System.out.println("Monitoramento sendo realizado na pasta:" + pastaCliente);
             iniciarTratadorRedundancia();
             List lista = new ArrayList();
             lista.add(in);
@@ -94,8 +103,7 @@ public class Servidor extends Conectavel {
 
     public void sinalizarAlteracaoLocal(Map<String, Object> requisicao) throws Exception {
         try {
-            String evento = (String)requisicao.get("evento");
-            System.out.println("Servidor sinalizando alteração local:"+evento);
+            String evento = (String) requisicao.get("evento");
             File arquivo;
             if (evento.equals(Constantes.EXCLUIR))
                 arquivo = new File((String) requisicao.get("endereco"));
@@ -126,7 +134,7 @@ public class Servidor extends Conectavel {
     }
 
     @Override
-    public void iniciarServicos(String enderecoPasta,String nome) throws Exception {
+    public void iniciarServicos(String keystore, String enderecoPasta, String nome) throws Exception {
         ServerSocket listen;
         try {
             listen = criaSSLServerSocket();
@@ -138,7 +146,7 @@ public class Servidor extends Conectavel {
                 System.out.println("Cliente aceito");
                 Map mapa = new HashMap();
                 mapa.put("cliente", cliente);
-                Thread s = new Servidor(enderecoPasta,nome, false, password, mapa);
+                Thread s = new Servidor(keystore, enderecoPasta, nome, password, mapa);
                 s.start();
             }
         } catch (Exception e) {
