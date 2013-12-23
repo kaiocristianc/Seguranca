@@ -1,6 +1,7 @@
 package entidades;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.ObjectInputStream;
 import java.io.PrintStream;
 import java.net.Socket;
@@ -43,16 +44,17 @@ public abstract class Conectavel extends Thread {
     private void receberArquivo(Map mapa) {
         try {
             String evento = (String) mapa.get("evento");
+            String enderecoArquivoRemoto = (String) mapa.get("endereco");
+            File arquivo = new File(enderecoArquivoRemoto);
             if (evento.equals(Constantes.EXCLUIR)) {
-                String endereco = (String) mapa.get("endereco");
-                File arquivoDeletado = new File(endereco);
-                gerenciadorArquivos.deletarArquivoLocalmente(arquivoDeletado);
+                gerenciadorArquivos.deletarArquivoLocalmente(arquivo);
             }else if(evento.equals(Constantes.SALVAR)){
-                File arquivoSalvar = (File)mapa.get("arquivo");
-                gerenciadorArquivos.salvarArquivoLocalmente(arquivoSalvar);
+                FileInputStream conteudo = (FileInputStream)mapa.get("arquivo");
+                gerenciadorArquivos.salvarArquivoLocalmente(conteudo,arquivo);
             }else if(evento.equals(Constantes.ATUALIZAR))  {
                 File arquivoSalvar = (File)mapa.get("arquivo");
-                gerenciadorArquivos.atualizarArquivoLocalmente(arquivoSalvar);
+                FileInputStream conteudo = (FileInputStream)mapa.get("arquivo");
+                gerenciadorArquivos.atualizarArquivoLocalmente(conteudo,arquivoSalvar);
             }
         } catch (Exception e) {
             System.out.println("Falha ao receber arquivo.Erro:" + e.getMessage());

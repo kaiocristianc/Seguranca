@@ -104,12 +104,8 @@ public class Servidor extends Conectavel {
     public void sinalizarAlteracaoLocal(Map<String, Object> requisicao) throws Exception {
         try {
             String evento = (String) requisicao.get("evento");
-            File arquivo;
-            if (evento.equals(Constantes.EXCLUIR))
-                arquivo = new File((String) requisicao.get("endereco"));
-            else
-                arquivo = (File) requisicao.get("arquivo");
-            PrintStream saidaCliente = getSaidaCliente(arquivo.getAbsolutePath());
+            String endereco=(String) requisicao.get("endereco");
+            PrintStream saidaCliente = getSaidaCliente(endereco);
             if (saidaCliente != null) {
                 saidaCliente.write(Utils.getBytes(requisicao));
                 saidaCliente.flush();

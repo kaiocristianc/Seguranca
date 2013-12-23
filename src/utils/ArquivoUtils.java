@@ -12,7 +12,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ArquivoUtils {
-    public static void criarArquivo(File file, String pastaDiretorio) throws Exception {
+    public static void criarArquivo(FileInputStream conteudo,File file, String pastaDiretorio) throws Exception {
         String pastaAtual = getLocalizacaoAtualArquivo(pastaDiretorio, file);
         String novoEnderecoArquivo = getNovoEnderecoArquivo(pastaAtual, file);
         File novaPasta = new File(pastaAtual);
@@ -21,15 +21,14 @@ public class ArquivoUtils {
             novaPasta.mkdirs();
         if (file.isFile()) {
             File destino = new File(novoEnderecoArquivo);
-            copiarArquivo(file, destino);
+            copiarArquivo(conteudo, destino);
         }
         if (file.isDirectory()) {
             new File(novoEnderecoArquivo).mkdirs();
         }
     }
 
-    public static void copiarArquivo(File origem, File destino) throws Exception {
-        FileInputStream fis = new FileInputStream(origem);
+    public static void copiarArquivo(FileInputStream fis, File destino) throws Exception {
         FileOutputStream fos = new FileOutputStream(destino);
         FileChannel inChannel = fis.getChannel();
         FileChannel outChannel = fos.getChannel();

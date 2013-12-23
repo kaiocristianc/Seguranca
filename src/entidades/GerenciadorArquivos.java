@@ -5,6 +5,7 @@ import utils.ArquivoUtils;
 import utils.Constantes;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -44,23 +45,23 @@ public class GerenciadorArquivos extends Thread implements Observer {
         String acao = (String) mapa.get("evento");
         if (!acao.equals(Constantes.EXCLUIR)) {
             File file = new File((String) mapa.get("endereco"));
-            mapa.remove("endereco");
-            mapa.put("arquivo", file);
+            FileInputStream input = new  FileInputStream(file);
+            mapa.put("arquivo", input);
         }
         conectavel.sinalizarAlteracaoLocal(mapa);
     }
 
-    public void salvarArquivoLocalmente(File file) throws Exception {
-        ArquivoUtils.criarArquivo(file, this.enderecoPasta);
+    public void salvarArquivoLocalmente(FileInputStream conteudo,File file) throws Exception {
+        ArquivoUtils.criarArquivo(conteudo,file, this.enderecoPasta);
     }
 
     public void deletarArquivoLocalmente(File file) {
         ArquivoUtils.deletarArquivo(file, this.enderecoPasta);
     }
 
-    public void atualizarArquivoLocalmente(File file) throws Exception {
+    public void atualizarArquivoLocalmente(FileInputStream conteudo,File file) throws Exception {
         ArquivoUtils.deletarArquivo(file, this.enderecoPasta);
-        ArquivoUtils.criarArquivo(file, this.enderecoPasta);
+        ArquivoUtils.criarArquivo(conteudo,file, this.enderecoPasta);
     }
 
     @Override
