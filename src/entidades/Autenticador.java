@@ -46,7 +46,7 @@ public class Autenticador {
                 crypto = "0" + crypto;
             return crypto;
         } catch (NoSuchAlgorithmException e) {
-            System.out.println("O algoritimo de MD5 não existe." + e.getMessage());
+            System.out.println("O algoritimo não existe." + e.getMessage());
         }
         return "";
     }
