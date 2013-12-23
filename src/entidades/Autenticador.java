@@ -39,7 +39,7 @@ public class Autenticador {
 
     private static String gerarMD5(String senha) {
         try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
+            MessageDigest md = MessageDigest.getInstance("SHA1");
             BigInteger hash = new BigInteger(1, md.digest(senha.getBytes()));
             String crypto = hash.toString(16);
             if (crypto.length() % 2 != 0)
